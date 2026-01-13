@@ -8,7 +8,7 @@ dbutils.fs.head("dbfs:/databricks-datasets/online_retail/data-001/data.csv")
 
 # COMMAND ----------
 
-dbutils.widgets.text("country", "", "countryname")
+dbutils.widgets.text("country", "")
 
 # COMMAND ----------
 
@@ -26,8 +26,8 @@ from pyspark.sql.functions import col, sum, count
 emp_df = spark.read.csv("dbfs:/databricks-datasets/online_retail/data-001/data.csv", 
                         header=True)
 
-df_country = emp_df.groupBy('Country').agg({'Quantity': 'sum'})
-df_country.show()
+##df_country = emp_df.groupBy('Country').agg({'Quantity': 'sum'})
+##df_country.show()
 
 # COMMAND ----------
 
