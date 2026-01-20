@@ -1,0 +1,86 @@
+version: 1.1
+
+source: devenv.bronze.orders_raw
+
+joins:
+  - name: cust_dim
+    source: devenv.bronze.customer_raw
+    "on": cust_dim.c_custkey = source.o_custkey
+
+dimensions:
+  - name: order_date
+    expr: o_orderdate
+    comment: Date the order was placed.
+    display_name: Order Date
+    format:
+      type: date
+      date_format: year_month_day
+      leading_zeros: false
+  - name: order_year
+    expr: "DATE_TRUNC('YEAR', o_orderdate)"
+    comment: Year in which the order was placed.
+    display_name: Order Year
+    format:
+      type: date
+      date_format: year_month_day
+      leading_zeros: false
+  - name: order_priority
+    expr: o_orderpriority
+    comment: Priority assigned to the order.
+    display_name: Order Priority
+  - name: order_key
+    expr: o_orderkey
+    comment: Unique identifier for the order.
+    display_name: Order Key
+  - name: order_status
+    expr: o_orderstatus
+    comment: Status code of the order.
+    display_name: Order Status
+  - name: order_status_readable
+    expr: |-
+      CASE
+        WHEN o_orderstatus = 'O' THEN 'open'
+        WHEN o_orderstatus = 'P' THEN 'pending'
+        WHEN o_orderstatus = 'F' THEN 'completed'
+      END
+    comment: Human-readable status of the order.
+    display_name: Order Status Readable
+  - name: customer_market_segment
+    expr: case WHEN cust_dim.c_mktsegment is null then 'Not Available' else cust_dim.c_mktsegment
+      END
+    comment: Customer market segment
+    display_name: Customer Market Segment
+
+measures:
+  - name: average_total_price
+    expr: AVG(o_totalprice)
+    comment: Average total price of orders.
+    display_name: Average Total Price
+    format:
+      type: currency
+      currency_code: USD
+      decimal_places:
+        type: exact
+        places: 2
+      abbreviation: compact
+  - name: total_orders_current_year
+    expr: COUNT(DISTINCT o_orderkey)
+    window:
+      - order: order_year
+        semiadditive: last
+        range: current
+    comment: Total number of distinct orders in the current year.
+    display_name: Total Orders (Current Year)
+  - name: total_orders_last_year
+    expr: COUNT(DISTINCT o_orderkey)
+    window:
+      - order: order_year
+        semiadditive: last
+        range: trailing 1 year
+    comment: Total number of distinct orders in the trailing year.
+    display_name: Total Orders (Last Year)
+  - name: yearly_growth
+    expr: ((MEASURE(total_orders_current_year) - MEASURE(total_orders_last_year))
+      / MEASURE(total_orders_current_year)) * 100
+    comment: Yearly growth percentage.
+    display_name: Yearly Growth (%)
