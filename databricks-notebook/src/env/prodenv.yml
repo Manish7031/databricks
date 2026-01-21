@@ -1,0 +1,5 @@
+targets:
+  prod:
+    permissions:
+      -group-name: control-users
+      level: CAN_VIEW

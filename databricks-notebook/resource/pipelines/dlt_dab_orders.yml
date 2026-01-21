@@ -1,0 +1,15 @@
+resources:
+  pipelines:
+    pipeline_dlt_orders_pipeline:
+      name: dlt_orders_pipeline
+      libraries:
+        - glob:
+            include: ../resource/notebooks/dlt_dab_order.sql
+      schema: bronze
+      continuous: false
+      development: false
+      photon: true
+      channel: CURRENT
+      catalog: devenv
+      serverless: true
+      root_path: ../resource/pipelines/dlt_orders_pipeline

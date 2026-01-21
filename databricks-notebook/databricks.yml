@@ -1,0 +1,29 @@
+bundle:
+  name: DemoDAB
+
+##resources:
+  ###
+
+include:
+  -src/*.yml
+  -src/env/*.yml
+  -resource/jobs/*.yml
+  -resource/pipelines/*.yml
+  -resource/schemas/*.yml
+  
+
+permissions:
+  -group_name: control-users
+  level: CAN_MANAGE
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: ${workspace.hostname}
+
+  qa:
+    default: false
+    workspace:
+      host: ${workspace.hostname}
